@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Data;
 using UnityEngine;
 
 public class InputHandler : MonoBehaviour
@@ -56,7 +57,7 @@ public class InputHandler : MonoBehaviour
 
         _currentPositionOnGrid += gridMoveDirectionVector;
 
-        _currentPositionOnGrid = levelGrid.ValidateGridPosition(gridPosition);
+        // _currentPositionOnGrid = levelGrid.ValidateGridPosition(gridPosition);
 
     }
 
