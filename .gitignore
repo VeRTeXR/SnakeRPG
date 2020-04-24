@@ -58,3 +58,12 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+SnakeRPG/Library/
+SnakeRPG/.idea/.gitignore
+SnakeRPG/.idea/.idea.SnakeRPG/riderModule.iml
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/.gitignore
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/contentModel.xml
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/indexLayout.xml
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/modules.xml
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/projectSettingsUpdater.xml
+SnakeRPG/.idea/.idea.SnakeRPG/.idea/vcs.xml
