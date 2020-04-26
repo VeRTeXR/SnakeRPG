@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 
-namespace Data
+namespace SpawnerSystem.Data
 {
-    public class EnemyEntity : MonoBehaviour
+    public class HeroEntity : MonoBehaviour
     {
-        public Sprite EnemySprite;
+        public Sprite HeroSprite;
         public int HealthPoint;
         public int AttackPoint;
         public int DefensePoint;
         public ElementType Element;
     }
 }
-

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Data
+namespace LevelGridSystem.Data
 {
     public class MovePosition
     {

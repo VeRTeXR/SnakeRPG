@@ -1,4 +1,4 @@
-namespace Data
+namespace SpawnerSystem.Data
 {
     public enum ElementType
     {
