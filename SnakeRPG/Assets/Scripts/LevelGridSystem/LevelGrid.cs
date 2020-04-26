@@ -1,45 +1,47 @@
-﻿using CaravanSystem;
+﻿using System.Collections.Generic;
+using CaravanSystem;
 using LevelGridSystem.Data;
 using SpawnerSystem;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace LevelGridSystem
 {
     public class LevelGrid {
 
-        private Vector2Int _newHeroGridPosition;
+        private List<Vector2Int> _newHeroGridPosition = new List<Vector2Int>();
         private GameObject _heroGameObject;
         private int _width;
         private int _height;
         private CaravanController _caravanController;
+
 
         public LevelGrid(int width, int height) {
             _width = width;
             _height = height;
         }
 
-        public void Setup(CaravanController snake) {
-            _caravanController = snake;
-            SpawnHero();
+        public Vector2Int GetLevelDimension()
+        {
+            return new Vector2Int(_width, _height);
         }
 
-        private void SpawnHero() {
-            do {
-                _newHeroGridPosition = new Vector2Int(Random.Range(0, _width), Random.Range(0, _height));
-            } while (_caravanController.GetCaravanGridPositionList().IndexOf(_newHeroGridPosition) != -1);
-            
-            _heroGameObject = new GameObject("Hero", typeof(SpriteRenderer));
-            _heroGameObject.GetComponent<SpriteRenderer>().sprite = HeroSpawner.GetRandomHeroSprite();
-            _heroGameObject.transform.position = new Vector3(_newHeroGridPosition.x, _newHeroGridPosition.y);
-        
+        public void Setup(CaravanController caravan)
+        {
+            _caravanController = caravan;
         }
+
 
         public bool CheckHeroCollision(Vector2Int gridPosition)
         {
-            if (gridPosition != _newHeroGridPosition) return false;
-            Object.Destroy(_heroGameObject);
-            SpawnHero();
-            return true;
+            foreach (var gridPos in _newHeroGridPosition)
+                if (gridPosition == gridPos)
+                {
+                    _newHeroGridPosition.Remove(gridPos);
+                    return true;
+                }
+
+            return false;
         }
 
         public Direction? ValidateGridPosition(Vector2Int gridPosition) {
@@ -49,6 +51,11 @@ namespace LevelGridSystem
             if (gridPosition.y < 0 || gridPosition.y > _height - 1)
                 return gridPosition.x > _width / 2 ? Direction.Left : Direction.Right;
             return null;
+        }
+
+        public void AppendNewHeroPosition(Vector2Int newHeroGridPosition)
+        {
+            _newHeroGridPosition.Add(newHeroGridPosition);
         }
     }
 }

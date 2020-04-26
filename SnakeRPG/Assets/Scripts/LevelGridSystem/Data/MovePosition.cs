@@ -9,7 +9,7 @@ namespace LevelGridSystem.Data
         private Direction direction;
 
         public MovePosition(MovePosition previousMovePosition, Vector2Int gridPosition, Direction direction) {
-            this._previousMovePosition = previousMovePosition;
+            _previousMovePosition = previousMovePosition;
             this.gridPosition = gridPosition;
             this.direction = direction;
         }
