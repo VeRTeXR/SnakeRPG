@@ -22,14 +22,6 @@ namespace SpawnerSystem
         private List<Vector2Int> _heroOccupiedGridPosition = new List<Vector2Int>();
         private Dictionary<Vector2Int, HeroEntity> _gridPositionHeroEntityPair = new Dictionary<Vector2Int, HeroEntity>();
 
-        public Sprite GetRandomHeroSprite()
-        {
-            var heroIndex  = Random.Range(0, heroSprites.Count);
- 
-            return heroSprites[heroIndex];
-        }
-
-
         public void Setup(CaravanController caravanController, LevelGrid levelGrid)
         {
             _currentTimer = _maxTimer;
@@ -75,7 +67,13 @@ namespace SpawnerSystem
             _gridPositionHeroEntityPair.Add(_newHeroGridPosition, heroEntity);
 
         }
-
+        
+        public Sprite GetRandomHeroSprite()
+        {
+            var heroIndex  = Random.Range(0, heroSprites.Count);
+            return heroSprites[heroIndex];
+        }
+        
         public HeroEntity GetHeroEntityFromGridPos(Vector2Int gridPos)
         {
             return _gridPositionHeroEntityPair[gridPos];

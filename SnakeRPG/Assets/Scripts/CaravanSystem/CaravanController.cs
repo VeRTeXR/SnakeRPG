@@ -16,10 +16,13 @@ namespace CaravanSystem
         private List<MovePosition> _movePositionList;
         private Vector2Int _currentPositionOnGrid;
         private LevelGrid _levelGrid;
-        private int _caravanSize;
+
 
         private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
+
+        private HeroEntity _leadingEntity;
+        private int _selectedHeroIndex = 0;
 
         private void Awake()
         {
@@ -27,18 +30,78 @@ namespace CaravanSystem
             _moveTimerCurrent = _moveTimerMax;
             _currentDirection = Direction.Right;
             _movePositionList = new List<MovePosition>();
-            _caravanSize = 0;
         }
 
-        public void Setup(LevelGrid level, HeroSpawner heroSpawner) {
+        public void Setup(LevelGrid level, HeroSpawner heroSpawner)
+        {
             _levelGrid = level;
             _heroSpawner = heroSpawner;
+            var currentEntity = gameObject.AddComponent<HeroEntity>();
+            currentEntity.Setup(heroSpawner.GetRandomHeroSprite());
+            _heroInCaravans.Add(currentEntity);
+            _leadingEntity = currentEntity;
         }
 
         private void Update()
         {
+            ProcessLeadHeroSwitching();
             ProcessMovementInput();
             ProcessMovement();
+        }
+
+        private void ProcessLeadHeroSwitching()
+        {
+            if (Input.GetKeyDown(KeyCode.Q)) SwitchHeroLeft();
+            if (Input.GetKeyDown(KeyCode.E)) SwitchHeroRight();
+        }
+
+        private void SwitchHeroRight()
+        {
+            _selectedHeroIndex++;
+            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
+            UpdateCurrentHero();
+        }
+
+
+        private void SwitchHeroLeft()
+        {
+            _selectedHeroIndex--;
+            if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count - 1;
+            UpdateCurrentHero();
+        }
+
+        private void UpdateCurrentHero()
+        {
+            SwapAvatar(_selectedHeroIndex);
+
+            Debug.LogError(_leadingEntity.HeroSprite.name);
+        }
+
+        private void SwapAvatar(int nextAvatarIndex)
+        {
+            var nextAvatar = _heroInCaravans[Mathf.Clamp(nextAvatarIndex, 0, _heroInCaravans.Count)].gameObject
+                .GetComponent<HeroEntity>();
+            if (nextAvatar != null)
+            {
+                var tempHealth = _leadingEntity.HealthPoint;
+                var tempAttack = _leadingEntity.AttackPoint;
+                var tempShield = _leadingEntity.DefensePoint;
+                var tempType = _leadingEntity.Element;
+                var tempSprite = _leadingEntity.GetComponent<SpriteRenderer>().sprite;
+
+                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
+                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
+                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
+                _leadingEntity.Element = nextAvatar.Element;
+                _leadingEntity.GetComponent<SpriteRenderer>().sprite =
+                    nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
+
+                nextAvatar.HealthPoint = tempHealth;
+                nextAvatar.AttackPoint = tempAttack;
+                nextAvatar.DefensePoint = tempShield;
+                nextAvatar.Element = tempType;
+                nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite = tempSprite;
+            }
         }
 
         private void ProcessMovement()
@@ -54,20 +117,21 @@ namespace CaravanSystem
         private void MoveForward()
         {
             MovePosition previousPositionOnGrid = null;
-            if (_movePositionList.Count > 0) {
+            if (_movePositionList.Count > 0)
+            {
                 previousPositionOnGrid = _movePositionList[0];
             }
-        
 
-            var snakeMovePosition = new MovePosition( previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
+
+            var snakeMovePosition = new MovePosition(previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
             _movePositionList.Insert(0, snakeMovePosition);
-        
+
             var gridMoveDirectionVector = ProcessMoveStep();
-        
+
             _currentPositionOnGrid += gridMoveDirectionVector;
 
             var directionChange = _levelGrid.ValidateGridPosition(_currentPositionOnGrid);
-       
+
             if (directionChange != null)
             {
                 _currentPositionOnGrid -= gridMoveDirectionVector;
@@ -77,27 +141,26 @@ namespace CaravanSystem
                 _currentPositionOnGrid += changeDirectionStep;
 
                 var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                
-                
+
+
                 AppliedPositionAndRotation(changeDirectionStep);
             }
             else
             {
-                
                 var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
                 if (isCollideWithHero)
                 {
                     //TODO:: remove when got the object
                     var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
                     _heroSpawner.RemoveHeroEntityFromGridPos(_currentPositionOnGrid);
-                    _caravanSize++;
                     _heroInCaravans.Add(collidedHero);
-                    
+
                     Debug.LogError(collidedHero.HeroSprite.name);
-                } 
+                }
+
                 AppliedPositionAndRotation(gridMoveDirectionVector);
             }
-            
+
             UpdateCaravanMemberPosition();
         }
 
@@ -136,36 +199,38 @@ namespace CaravanSystem
             return gridMoveDirectionVector;
         }
 
-        private static float GetAngleFromVector(Vector2Int dir) {
+        private static float GetAngleFromVector(Vector2Int dir)
+        {
             var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             if (angle < 0) angle += 360;
             return angle;
         }
-    
-        public List<Vector2Int> GetCaravanGridPositionList() {
-            var gridPositionList = new List<Vector2Int> { _currentPositionOnGrid };
-            foreach (var movePosition in _movePositionList) 
+
+        public List<Vector2Int> GetCaravanGridPositionList()
+        {
+            var gridPositionList = new List<Vector2Int> {_currentPositionOnGrid};
+            foreach (var movePosition in _movePositionList)
                 gridPositionList.Add(movePosition.GetGridPosition());
-        
+
             return gridPositionList;
         }
 
-    
+
         private void ProcessMovementInput()
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
                 if (_currentDirection != Direction.Down)
                     _currentDirection = Direction.Up;
 
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
                 if (_currentDirection != Direction.Up)
                     _currentDirection = Direction.Down;
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
                 if (_currentDirection != Direction.Right)
                     _currentDirection = Direction.Left;
 
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
                 if (_currentDirection != Direction.Left)
                     _currentDirection = Direction.Right;
         }
