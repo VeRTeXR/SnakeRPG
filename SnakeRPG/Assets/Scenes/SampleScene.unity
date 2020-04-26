@@ -121,6 +121,56 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &15013347
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 15013349}
+  - component: {fileID: 15013348}
+  m_Layer: 0
+  m_Name: Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &15013348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15013347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28d8695f783a4bb3acf871a9bbd08281, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  heroSprites:
+  - {fileID: -8644889942409211090, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 7180195895192826059, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -6622732464455020030, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 8222604357750818144, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -4004527290698857321, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -6033885931137250393, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+--- !u!4 &15013349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15013347}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1413309999 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6738370986404624435, guid: 4bc6b15d9ba828a44aa520377a8b116e,
@@ -544,6 +594,11 @@ PrefabInstance:
       propertyPath: caravanController
       value: 
       objectReference: {fileID: 1473337750}
+    - target: {fileID: 8395386740289586681, guid: 62c7d077771e2d547a562fb969165ace,
+        type: 3}
+      propertyPath: heroSpawner
+      value: 
+      objectReference: {fileID: 15013348}
     - target: {fileID: 8395386740289586682, guid: 62c7d077771e2d547a562fb969165ace,
         type: 3}
       propertyPath: m_Name

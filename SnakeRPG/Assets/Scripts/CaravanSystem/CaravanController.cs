@@ -131,6 +131,8 @@ namespace CaravanSystem
 
             if (directionChange != null)
             {
+                RemoveCurrentHero();
+                
                 _currentPositionOnGrid -= gridMoveDirectionVector;
                 _currentDirection = (Direction) directionChange;
                 var changeDirectionStep = ProcessMoveStep();
@@ -153,6 +155,25 @@ namespace CaravanSystem
             }
 
             UpdateCaravanMemberPosition();
+        }
+
+        private void RemoveCurrentHero()
+        {
+            _selectedHeroIndex++;
+            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
+            var nextAvatar = _heroInCaravans[Mathf.Clamp(_selectedHeroIndex, 0, _heroInCaravans.Count - 1)].gameObject
+                .GetComponent<HeroEntity>();
+            if (nextAvatar != null)
+            {
+                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
+                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
+                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
+                _leadingEntity.Element = nextAvatar.Element;
+                _leadingEntity.GetComponent<SpriteRenderer>().sprite = nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
+                _heroInCaravans.RemoveAt(_selectedHeroIndex);
+                Destroy(nextAvatar.gameObject);
+                _selectedHeroIndex = 0;
+            }
         }
 
         private void AddHeroToCaravan()
