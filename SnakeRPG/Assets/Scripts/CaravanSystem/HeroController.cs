@@ -19,9 +19,9 @@ namespace CaravanSystem
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Q)) SwitchHeroLeft();
+            // if (Input.GetKeyDown(KeyCode.Q)) SwitchHeroLeft();
 
-            if (Input.GetKeyDown(KeyCode.E)) SwitchHeroRight();
+            // if (Input.GetKeyDown(KeyCode.E)) SwitchHeroRight();
         }
 
         private void SwitchHeroRight()
