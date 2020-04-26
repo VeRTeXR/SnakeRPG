@@ -12,15 +12,24 @@ namespace LevelGridSystem
         private int _width;
         private int _height;
         private CaravanController _caravanController;
+        private HeroSpawner _heroSpawner;
+
 
         public LevelGrid(int width, int height) {
             _width = width;
             _height = height;
         }
 
-        public void Setup(CaravanController snake) {
-            _caravanController = snake;
-            SpawnHero();
+        public Vector2Int GetLevelDimension()
+        {
+            return new Vector2Int(_width, _height);
+        }
+
+        public void Setup(CaravanController caravan, HeroSpawner heroSpawner)
+        {
+            _heroSpawner = heroSpawner;
+            _caravanController = caravan;
+            // SpawnHero();
         }
 
         private void SpawnHero() {
@@ -29,7 +38,7 @@ namespace LevelGridSystem
             } while (_caravanController.GetCaravanGridPositionList().IndexOf(_newHeroGridPosition) != -1);
             
             _heroGameObject = new GameObject("Hero", typeof(SpriteRenderer));
-            _heroGameObject.GetComponent<SpriteRenderer>().sprite = HeroSpawner.GetRandomHeroSprite();
+            _heroGameObject.GetComponent<SpriteRenderer>().sprite = _heroSpawner.GetRandomHeroSprite();
             _heroGameObject.transform.position = new Vector3(_newHeroGridPosition.x, _newHeroGridPosition.y);
         
         }
@@ -38,7 +47,7 @@ namespace LevelGridSystem
         {
             if (gridPosition != _newHeroGridPosition) return false;
             Object.Destroy(_heroGameObject);
-            SpawnHero();
+            // SpawnHero();
             return true;
         }
 
