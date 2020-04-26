@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace SpawnerSystem.Data
 {
@@ -9,5 +10,18 @@ namespace SpawnerSystem.Data
         public int AttackPoint;
         public int DefensePoint;
         public ElementType Element;
+        private SpriteRenderer _spriteRenderer;
+
+
+        private void Awake()
+        {
+            _spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        public void Setup(Sprite heroSprite)
+        {
+            _spriteRenderer.sprite = heroSprite;
+            HeroSprite = heroSprite;
+        }
     }
 }

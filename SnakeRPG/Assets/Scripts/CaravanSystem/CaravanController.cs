@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using LevelGridSystem;
 using LevelGridSystem.Data;
+using SpawnerSystem;
 using UnityEngine;
 
 namespace CaravanSystem
@@ -14,6 +16,7 @@ namespace CaravanSystem
 
         private Vector2Int _currentPositionOnGrid;
         private LevelGrid _levelGrid;
+        private HeroSpawner _heroSpawner;
 
         private void Awake()
         {
@@ -23,8 +26,9 @@ namespace CaravanSystem
             _movePositionList = new List<MovePosition>();
         }
 
-        public void Setup(LevelGrid level) {
+        public void Setup(LevelGrid level, HeroSpawner heroSpawner) {
             _levelGrid = level;
+            _heroSpawner = heroSpawner;
         }
 
         private void Update()
@@ -77,7 +81,14 @@ namespace CaravanSystem
             {
                 
                 var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
+                if (isCollideWithHero)
+                {
+                    var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
+                    Debug.LogError(collidedHero.HeroSprite.name);
+                }
                 Debug.LogError(isCollideWithHero);
+
+                
                 
                 AppliedPositionAndRotation(gridMoveDirectionVector);
             }

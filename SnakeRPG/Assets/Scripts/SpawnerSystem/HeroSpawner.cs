@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CaravanSystem;
 using LevelGridSystem;
+using SpawnerSystem.Data;
 using UnityEngine;
 
 namespace SpawnerSystem
@@ -17,6 +18,8 @@ namespace SpawnerSystem
         private int _levelHeight;
         private Vector2Int _newHeroGridPosition;
         private GameObject _heroGameObject;
+
+        private Dictionary<Vector2Int, HeroEntity> _gridPositionHeroEntityPair = new Dictionary<Vector2Int, HeroEntity>();
 
         public Sprite GetRandomHeroSprite()
         {
@@ -55,10 +58,18 @@ namespace SpawnerSystem
             } while (_caravanController.GetCaravanGridPositionList().IndexOf(_newHeroGridPosition) != -1);
             
             _heroGameObject = new GameObject("Hero", typeof(SpriteRenderer));
-            _heroGameObject.GetComponent<SpriteRenderer>().sprite = GetRandomHeroSprite();
             _heroGameObject.transform.position = new Vector3(_newHeroGridPosition.x, _newHeroGridPosition.y);
+            var heroEntity = _heroGameObject.AddComponent<HeroEntity>();
+            heroEntity.Setup(GetRandomHeroSprite());
             _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
+            
+            _gridPositionHeroEntityPair.Add(_newHeroGridPosition, heroEntity);
 
         }
+
+        public HeroEntity GetHeroEntityFromGridPos(Vector2Int gridPos)
+        {
+            return _gridPositionHeroEntityPair[gridPos];
+        } 
     }
 }

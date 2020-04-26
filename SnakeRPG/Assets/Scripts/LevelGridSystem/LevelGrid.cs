@@ -14,7 +14,6 @@ namespace LevelGridSystem
         private int _width;
         private int _height;
         private CaravanController _caravanController;
-        private HeroSpawner _heroSpawner;
 
 
         public LevelGrid(int width, int height) {
@@ -27,9 +26,8 @@ namespace LevelGridSystem
             return new Vector2Int(_width, _height);
         }
 
-        public void Setup(CaravanController caravan, HeroSpawner heroSpawner)
+        public void Setup(CaravanController caravan)
         {
-            _heroSpawner = heroSpawner;
             _caravanController = caravan;
         }
 
