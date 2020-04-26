@@ -1,5 +1,4 @@
-﻿using System;
-using LevelGridSystem.Data;
+﻿using LevelGridSystem.Data;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -37,9 +36,7 @@ namespace SpawnerSystem.Data
         public void SetCaravanMemberMovePosition(MovePosition movePosition)
         {
             this.movePosition = movePosition;
-
             transform.position = new Vector3(movePosition.GetGridPosition().x, movePosition.GetGridPosition().y);
-
             float angle;
             switch (movePosition.GetDirection())
             {

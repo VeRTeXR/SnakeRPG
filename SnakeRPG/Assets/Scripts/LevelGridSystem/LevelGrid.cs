@@ -36,7 +36,11 @@ namespace LevelGridSystem
         {
             foreach (var gridPos in _newHeroGridPosition)
                 if (gridPosition == gridPos)
+                {
+                    _newHeroGridPosition.Remove(gridPos);
                     return true;
+                }
+
             return false;
         }
 

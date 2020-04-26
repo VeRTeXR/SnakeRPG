@@ -89,6 +89,7 @@ namespace CaravanSystem
                 {
                     //TODO:: remove when got the object
                     var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
+                    _heroSpawner.RemoveHeroEntityFromGridPos(_currentPositionOnGrid);
                     _caravanSize++;
                     _heroInCaravans.Add(collidedHero);
                     
