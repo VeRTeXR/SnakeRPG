@@ -68,10 +68,19 @@ namespace CaravanSystem
 
                 _currentPositionOnGrid += changeDirectionStep;
 
+                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
+                Debug.LogError(isCollideWithHero);
+                
                 AppliedPositionAndRotation(changeDirectionStep);
             }
             else
+            {
+                
+                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
+                Debug.LogError(isCollideWithHero);
+                
                 AppliedPositionAndRotation(gridMoveDirectionVector);
+            }
         }
 
         private void AppliedPositionAndRotation(Vector2Int gridMoveDirectionVector)

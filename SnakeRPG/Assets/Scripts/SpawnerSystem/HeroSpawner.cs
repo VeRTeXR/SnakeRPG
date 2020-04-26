@@ -57,7 +57,8 @@ namespace SpawnerSystem
             _heroGameObject = new GameObject("Hero", typeof(SpriteRenderer));
             _heroGameObject.GetComponent<SpriteRenderer>().sprite = GetRandomHeroSprite();
             _heroGameObject.transform.position = new Vector3(_newHeroGridPosition.x, _newHeroGridPosition.y);
-        
+            _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
+
         }
     }
 }
