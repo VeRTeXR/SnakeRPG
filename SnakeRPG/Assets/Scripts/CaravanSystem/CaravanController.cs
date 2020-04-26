@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using LevelGridSystem;
 using LevelGridSystem.Data;
 using SpawnerSystem;
+using SpawnerSystem.Data;
 using UnityEngine;
 
 namespace CaravanSystem
@@ -13,9 +14,11 @@ namespace CaravanSystem
         private float _moveTimerMax = 0.5f;
         private float _moveTimerCurrent;
         private List<MovePosition> _movePositionList;
-
         private Vector2Int _currentPositionOnGrid;
         private LevelGrid _levelGrid;
+        private int _caravanSize;
+
+        private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
 
         private void Awake()
@@ -24,6 +27,7 @@ namespace CaravanSystem
             _moveTimerCurrent = _moveTimerMax;
             _currentDirection = Direction.Right;
             _movePositionList = new List<MovePosition>();
+            _caravanSize = 0;
         }
 
         public void Setup(LevelGrid level, HeroSpawner heroSpawner) {
@@ -73,7 +77,7 @@ namespace CaravanSystem
                 _currentPositionOnGrid += changeDirectionStep;
 
                 var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                Debug.LogError(isCollideWithHero);
+                
                 
                 AppliedPositionAndRotation(changeDirectionStep);
             }
@@ -83,15 +87,23 @@ namespace CaravanSystem
                 var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
                 if (isCollideWithHero)
                 {
+                    //TODO:: remove when got the object
                     var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
+                    _caravanSize++;
+                    _heroInCaravans.Add(collidedHero);
+                    
                     Debug.LogError(collidedHero.HeroSprite.name);
-                }
-                Debug.LogError(isCollideWithHero);
-
-                
-                
+                } 
                 AppliedPositionAndRotation(gridMoveDirectionVector);
             }
+            
+            UpdateCaravanMemberPosition();
+        }
+
+        private void UpdateCaravanMemberPosition()
+        {
+            for (var i = 0; i < _heroInCaravans.Count; i++)
+                _heroInCaravans[i].SetCaravanMemberMovePosition(_movePositionList[i]);
         }
 
         private void AppliedPositionAndRotation(Vector2Int gridMoveDirectionVector)
