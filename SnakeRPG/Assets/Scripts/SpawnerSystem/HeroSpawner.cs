@@ -12,7 +12,7 @@ namespace SpawnerSystem
         private CaravanController _caravanController;
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 3f;
+        private float _maxTimer = 1f;
         private LevelGrid _levelGrid;
         private int _levelWidth;
         private int _levelHeight;
@@ -52,18 +52,21 @@ namespace SpawnerSystem
 
         private void SpawnHero()
         {
+            var heroOnGrid = _levelGrid.GetHeroOnGridPositionList();
+            var enemyOnGrid = _levelGrid.GetEnemyOnGridPositionList();
             do
             {
                 _newHeroGridPosition = new Vector2Int(Random.Range(0, _levelWidth), Random.Range(0, _levelHeight));
             } while (_caravanController.GetCaravanGridPositionList().IndexOf(_newHeroGridPosition) != -1 &&
-                     _heroOccupiedGridPosition.IndexOf(_newHeroGridPosition) != -1);
+                     heroOnGrid.IndexOf(_newHeroGridPosition) != -1 && enemyOnGrid.IndexOf(_newHeroGridPosition) != -1);
             
             _heroGameObject = new GameObject("Hero", typeof(SpriteRenderer));
             _heroGameObject.transform.position = new Vector3(_newHeroGridPosition.x, _newHeroGridPosition.y);
             var heroEntity = _heroGameObject.AddComponent<HeroEntity>();
             heroEntity.Setup(GetRandomHeroSprite());
-            _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
             
+            _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
+            _heroOccupiedGridPosition.Add(_newHeroGridPosition);
             _gridPositionHeroEntityPair.Add(_newHeroGridPosition, heroEntity);
 
         }
@@ -83,5 +86,7 @@ namespace SpawnerSystem
         {
             _gridPositionHeroEntityPair.Remove(gridPos);
         }
+
+
     }
 }

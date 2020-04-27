@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using CaravanSystem;
 using LevelGridSystem.Data;
-using SpawnerSystem;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace LevelGridSystem
 {
     public class LevelGrid {
 
-        private List<Vector2Int> _newHeroGridPosition = new List<Vector2Int>();
+        private List<Vector2Int> _newHeroGridPosition = new List<Vector2Int>(); 
+        private List<Vector2Int> _newEnemyGridPosition = new List<Vector2Int>();
         private GameObject _heroGameObject;
         private int _width;
         private int _height;
+        
         private CaravanController _caravanController;
 
 
@@ -43,6 +43,18 @@ namespace LevelGridSystem
 
             return false;
         }
+        
+        public bool CheckEnemyCollision(Vector2Int gridPosition)
+        {
+            foreach (var gridPos in _newEnemyGridPosition)
+                if (gridPosition == gridPos)
+                {
+                    _newEnemyGridPosition.Remove(gridPos);
+                    return true;
+                }
+
+            return false;
+        }
 
         public Direction? ValidateGridPosition(Vector2Int gridPosition) {
             if (gridPosition.x < 0 || gridPosition.x > _width - 1)
@@ -56,6 +68,21 @@ namespace LevelGridSystem
         public void AppendNewHeroPosition(Vector2Int newHeroGridPosition)
         {
             _newHeroGridPosition.Add(newHeroGridPosition);
+        }
+
+        public void AppendEnemyPosition(Vector2Int newGridPosition)
+        {
+            _newEnemyGridPosition.Add(newGridPosition);
+        }
+       
+        public List<Vector2Int> GetHeroOnGridPositionList()
+        {
+            return _newHeroGridPosition;
+        }
+
+        public List<Vector2Int> GetEnemyOnGridPositionList()
+        {
+            return _newEnemyGridPosition;
         }
     }
 }

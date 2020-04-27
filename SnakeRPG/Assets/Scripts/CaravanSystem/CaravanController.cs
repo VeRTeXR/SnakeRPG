@@ -19,10 +19,11 @@ namespace CaravanSystem
         
         private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
+        private EnemySpawner _enemySpawner;
 
         private HeroEntity _leadingEntity;
         private int _selectedHeroIndex = 0;
-
+        
         private void Awake()
         {
             _currentPositionOnGrid = new Vector2Int(5, 5);
@@ -139,22 +140,35 @@ namespace CaravanSystem
 
                 _currentPositionOnGrid += changeDirectionStep;
 
-                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                if (isCollideWithHero) 
-                    AddHeroToCaravan();
+                CollisionChecks();
 
                 AppliedPositionAndRotation(changeDirectionStep);
             }
             else
             {
-                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                if (isCollideWithHero)
-                    AddHeroToCaravan();
+                CollisionChecks();
 
                 AppliedPositionAndRotation(gridMoveDirectionVector);
             }
 
             UpdateCaravanMemberPosition();
+        }
+
+        private void CollisionChecks()
+        {
+            var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
+            if (isCollideWithHero)
+                AddHeroToCaravan();
+
+            var isCollideWithEnemy = _levelGrid.CheckEnemyCollision(_currentPositionOnGrid);
+            if (isCollideWithEnemy)
+                EngageWithEnemy();
+        }
+
+        private void EngageWithEnemy()
+        {
+            _enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+            
         }
 
         private void RemoveCurrentHero()
