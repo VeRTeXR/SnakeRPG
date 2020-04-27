@@ -27,6 +27,8 @@ namespace CaravanSystem
 
         private HeroEntity _leadingEntity;
         private int _selectedHeroIndex = 0;
+
+        private bool _isCaravanActive;
         
         private void Awake()
         {
@@ -36,6 +38,7 @@ namespace CaravanSystem
             _movePositionList = new List<MovePosition>();
 
             Signaler.Instance.Subscribe<EngageEnemySequenceFinish>(this, OnEngageEnemySequenceFinished);
+            _isCaravanActive = true;
         }
 
         private bool OnEngageEnemySequenceFinished(EngageEnemySequenceFinish signal)
@@ -46,7 +49,7 @@ namespace CaravanSystem
 
         private void UnpauseCaravan()
         {
-            throw new System.NotImplementedException();
+            _isCaravanActive = true;
         }
 
         public void Setup(LevelGrid level, HeroSpawner heroSpawner, EnemySpawner enemySpawner)
@@ -62,9 +65,12 @@ namespace CaravanSystem
 
         private void Update()
         {
-            ProcessLeadHeroSwitching();
-            ProcessMovementInput();
-            ProcessMovement();
+            if (_isCaravanActive)
+            {
+                ProcessLeadHeroSwitching();
+                ProcessMovementInput();
+                ProcessMovement();
+            }
         }
 
         private void ProcessLeadHeroSwitching()
@@ -76,8 +82,8 @@ namespace CaravanSystem
         private void SwitchHeroRight()
         {
             _selectedHeroIndex++;
-            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
-            UpdateCurrentHero();
+            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;    
+            SwapAvatar(_selectedHeroIndex);
         }
 
 
@@ -85,14 +91,9 @@ namespace CaravanSystem
         {
             _selectedHeroIndex--;
             if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count - 1;
-            UpdateCurrentHero();
+            SwapAvatar(_selectedHeroIndex);    
         }
-
-        private void UpdateCurrentHero()
-        {
-            SwapAvatar(_selectedHeroIndex);
-        }
-
+        
         private void SwapAvatar(int nextAvatarIndex)
         {
             var nextAvatar = _heroInCaravans[Mathf.Clamp(nextAvatarIndex, 0, _heroInCaravans.Count)].gameObject
@@ -182,7 +183,7 @@ namespace CaravanSystem
 
         private void PauseCaravan()
         {
-            throw new System.NotImplementedException();
+            _isCaravanActive = false;
         }
 
         private void RemoveCurrentHero()
@@ -204,7 +205,6 @@ namespace CaravanSystem
         private void AddHeroToCaravan()
         {
             var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
-            _heroSpawner.RemoveHeroEntityFromGridPos(_currentPositionOnGrid);
             _heroInCaravans.Add(collidedHero);
 
         }

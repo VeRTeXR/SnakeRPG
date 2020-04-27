@@ -79,14 +79,9 @@ namespace SpawnerSystem
         
         public HeroEntity GetHeroEntityFromGridPos(Vector2Int gridPos)
         {
-            return _gridPositionHeroEntityPair[gridPos];
-        }
-
-        public void RemoveHeroEntityFromGridPos(Vector2Int gridPos)
-        {
+            var heroInGrid = _gridPositionHeroEntityPair[gridPos];
             _gridPositionHeroEntityPair.Remove(gridPos);
+            return heroInGrid;
         }
-
-
     }
 }
