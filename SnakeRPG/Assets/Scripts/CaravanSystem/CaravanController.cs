@@ -19,10 +19,11 @@ namespace CaravanSystem
         
         private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
+        private EnemySpawner _enemySpawner;
 
         private HeroEntity _leadingEntity;
         private int _selectedHeroIndex = 0;
-
+        
         private void Awake()
         {
             _currentPositionOnGrid = new Vector2Int(5, 5);
@@ -31,10 +32,11 @@ namespace CaravanSystem
             _movePositionList = new List<MovePosition>();
         }
 
-        public void Setup(LevelGrid level, HeroSpawner heroSpawner)
+        public void Setup(LevelGrid level, HeroSpawner heroSpawner, EnemySpawner enemySpawner)
         {
             _levelGrid = level;
             _heroSpawner = heroSpawner;
+            _enemySpawner = enemySpawner;
             var currentEntity = gameObject.AddComponent<HeroEntity>();
             currentEntity.Setup(heroSpawner.GetRandomHeroSprite());
             _heroInCaravans.Add(currentEntity);
@@ -114,14 +116,10 @@ namespace CaravanSystem
         private void MoveForward()
         {
             MovePosition previousPositionOnGrid = null;
-            if (_movePositionList.Count > 0)
-            {
-                previousPositionOnGrid = _movePositionList[0];
-            }
+            if (_movePositionList.Count > 0) previousPositionOnGrid = _movePositionList[0];
 
-
-            var snakeMovePosition = new MovePosition(previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
-            _movePositionList.Insert(0, snakeMovePosition);
+            var movePosition = new MovePosition(previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
+            _movePositionList.Insert(0, movePosition);
 
             var gridMoveDirectionVector = ProcessMoveStep();
 
@@ -139,22 +137,37 @@ namespace CaravanSystem
 
                 _currentPositionOnGrid += changeDirectionStep;
 
-                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                if (isCollideWithHero) 
-                    AddHeroToCaravan();
+                CollisionChecks();
 
                 AppliedPositionAndRotation(changeDirectionStep);
             }
             else
             {
-                var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
-                if (isCollideWithHero)
-                    AddHeroToCaravan();
+                CollisionChecks();
 
                 AppliedPositionAndRotation(gridMoveDirectionVector);
             }
 
             UpdateCaravanMemberPosition();
+        }
+
+        private void CollisionChecks()
+        {
+            var isCollideWithHero = _levelGrid.CheckHeroCollision(_currentPositionOnGrid);
+            if (isCollideWithHero)
+                AddHeroToCaravan();
+
+            var isCollideWithEnemy = _levelGrid.CheckEnemyCollision(_currentPositionOnGrid);
+            if (isCollideWithEnemy)
+                EngageWithEnemy();
+        }
+
+        private void EngageWithEnemy()
+        { 
+            var enemyEntity =_enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+            
+            Destroy(enemyEntity.gameObject);
+           Debug.LogError(enemyEntity.EnemySprite.name); 
         }
 
         private void RemoveCurrentHero()

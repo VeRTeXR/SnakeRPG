@@ -14,13 +14,11 @@ namespace SpawnerSystem.Data
         private SpriteRenderer _spriteRenderer;
 
         private MovePosition movePosition;
-        private Transform _transform;
 
 
         private void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
-            _transform = transform;
         }
 
         public void Setup(Sprite heroSprite)
