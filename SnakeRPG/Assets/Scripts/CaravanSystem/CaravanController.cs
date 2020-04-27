@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using CaravanSystem.Signal;
 using echo17.Signaler.Core;
@@ -177,8 +178,32 @@ namespace CaravanSystem
             {
                 EnemyEntity = enemyEntity, HeroEntity = _leadingEntity
             });
-            
+
+            ProcessEngagement(enemyEntity);
             PauseCaravan();
+        }
+
+        private void ProcessEngagement(EnemyEntity enemyEntity)
+        {
+            var typeAttackMultiplier = 1;
+            var engagedHeroData = _leadingEntity.EntityData;
+            if (engagedHeroData.Element == enemyEntity.EntityData.Element) typeAttackMultiplier = 2;
+
+            var damage = (_leadingEntity.EntityData.AttackPoint * typeAttackMultiplier) - enemyEntity.EntityData.DefensePoint;
+            var remainingHealth = enemyEntity.EntityData.HealthPoint - damage;
+
+            if (remainingHealth > 0)
+            {
+                //TODO:: fightback
+                if (engagedHeroData.HealthPoint <= 0)
+                {
+                    //TODO:: Switch or Gameover
+                }
+            }
+            else
+            {
+                //TODO:: Destroy and remove enemy from grid
+            }
         }
 
         private void PauseCaravan()

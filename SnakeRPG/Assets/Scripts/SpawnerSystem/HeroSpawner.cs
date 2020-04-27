@@ -68,15 +68,14 @@ namespace SpawnerSystem
             _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
             _heroOccupiedGridPosition.Add(_newHeroGridPosition);
             _gridPositionHeroEntityPair.Add(_newHeroGridPosition, heroEntity);
-
         }
-        
+
         public Sprite GetRandomHeroSprite()
         {
-            var heroIndex  = Random.Range(0, heroSprites.Count);
+            var heroIndex = Random.Range(0, heroSprites.Count);
             return heroSprites[heroIndex];
         }
-        
+
         public HeroEntity GetHeroEntityFromGridPos(Vector2Int gridPos)
         {
             var heroInGrid = _gridPositionHeroEntityPair[gridPos];
