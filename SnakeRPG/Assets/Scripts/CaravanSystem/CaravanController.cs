@@ -1,14 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using CaravanSystem.Signal;
+using echo17.Signaler.Core;
 using LevelGridSystem;
 using LevelGridSystem.Data;
 using SpawnerSystem;
 using SpawnerSystem.Data;
+using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace CaravanSystem
 {
-    public class CaravanController : MonoBehaviour
+    public class CaravanController : MonoBehaviour, IBroadcaster, ISubscriber
     {
         private Direction _currentDirection;
         private float _moveTimerMax = 0.5f;
@@ -30,6 +34,19 @@ namespace CaravanSystem
             _moveTimerCurrent = _moveTimerMax;
             _currentDirection = Direction.Right;
             _movePositionList = new List<MovePosition>();
+
+            Signaler.Instance.Subscribe<EngageEnemySequenceFinish>(this, OnEngageEnemySequenceFinished);
+        }
+
+        private bool OnEngageEnemySequenceFinished(EngageEnemySequenceFinish signal)
+        {
+            UnpauseCaravan();
+            return true;
+        }
+
+        private void UnpauseCaravan()
+        {
+            throw new System.NotImplementedException();
         }
 
         public void Setup(LevelGrid level, HeroSpawner heroSpawner, EnemySpawner enemySpawner)
@@ -82,24 +99,14 @@ namespace CaravanSystem
                 .GetComponent<HeroEntity>();
             if (nextAvatar != null)
             {
-                var tempHealth = _leadingEntity.HealthPoint;
-                var tempAttack = _leadingEntity.AttackPoint;
-                var tempShield = _leadingEntity.DefensePoint;
-                var tempType = _leadingEntity.Element;
-                var tempSprite = _leadingEntity.GetComponent<SpriteRenderer>().sprite;
+                var tempData = _leadingEntity.EntityData;
 
-                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
-                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
-                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
-                _leadingEntity.Element = nextAvatar.Element;
+                _leadingEntity.EntityData = nextAvatar.EntityData;
                 _leadingEntity.GetComponent<SpriteRenderer>().sprite =
                     nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
 
-                nextAvatar.HealthPoint = tempHealth;
-                nextAvatar.AttackPoint = tempAttack;
-                nextAvatar.DefensePoint = tempShield;
-                nextAvatar.Element = tempType;
-                nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite = tempSprite;
+                nextAvatar.EntityData = tempData;
+                nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite = tempData.Sprite;
             }
         }
 
@@ -159,15 +166,23 @@ namespace CaravanSystem
 
             var isCollideWithEnemy = _levelGrid.CheckEnemyCollision(_currentPositionOnGrid);
             if (isCollideWithEnemy)
-                EngageWithEnemy();
+                EngageEnemy();
         }
 
-        private void EngageWithEnemy()
+        private void EngageEnemy()
         { 
             var enemyEntity =_enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+            Signaler.Instance.Broadcast(this, new EngageEnemySequence
+            {
+                EnemyEntity = enemyEntity, HeroEntity = _leadingEntity
+            });
             
-            Destroy(enemyEntity.gameObject);
-           Debug.LogError(enemyEntity.EnemySprite.name); 
+            PauseCaravan();
+        }
+
+        private void PauseCaravan()
+        {
+            throw new System.NotImplementedException();
         }
 
         private void RemoveCurrentHero()
@@ -178,10 +193,7 @@ namespace CaravanSystem
                 .GetComponent<HeroEntity>();
             if (nextAvatar != null)
             {
-                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
-                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
-                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
-                _leadingEntity.Element = nextAvatar.Element;
+                _leadingEntity.EntityData = nextAvatar.EntityData;
                 _leadingEntity.GetComponent<SpriteRenderer>().sprite = nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
                 _heroInCaravans.RemoveAt(_selectedHeroIndex);
                 Destroy(nextAvatar.gameObject);
@@ -195,7 +207,6 @@ namespace CaravanSystem
             _heroSpawner.RemoveHeroEntityFromGridPos(_currentPositionOnGrid);
             _heroInCaravans.Add(collidedHero);
 
-            Debug.LogError(collidedHero.HeroSprite.name);
         }
 
         private void UpdateCaravanMemberPosition()
