@@ -32,10 +32,11 @@ namespace CaravanSystem
             _movePositionList = new List<MovePosition>();
         }
 
-        public void Setup(LevelGrid level, HeroSpawner heroSpawner)
+        public void Setup(LevelGrid level, HeroSpawner heroSpawner, EnemySpawner enemySpawner)
         {
             _levelGrid = level;
             _heroSpawner = heroSpawner;
+            _enemySpawner = enemySpawner;
             var currentEntity = gameObject.AddComponent<HeroEntity>();
             currentEntity.Setup(heroSpawner.GetRandomHeroSprite());
             _heroInCaravans.Add(currentEntity);
@@ -115,14 +116,10 @@ namespace CaravanSystem
         private void MoveForward()
         {
             MovePosition previousPositionOnGrid = null;
-            if (_movePositionList.Count > 0)
-            {
-                previousPositionOnGrid = _movePositionList[0];
-            }
+            if (_movePositionList.Count > 0) previousPositionOnGrid = _movePositionList[0];
 
-
-            var snakeMovePosition = new MovePosition(previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
-            _movePositionList.Insert(0, snakeMovePosition);
+            var movePosition = new MovePosition(previousPositionOnGrid, _currentPositionOnGrid, _currentDirection);
+            _movePositionList.Insert(0, movePosition);
 
             var gridMoveDirectionVector = ProcessMoveStep();
 
@@ -166,9 +163,11 @@ namespace CaravanSystem
         }
 
         private void EngageWithEnemy()
-        {
-            _enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+        { 
+            var enemyEntity =_enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
             
+            Destroy(enemyEntity.gameObject);
+           Debug.LogError(enemyEntity.EnemySprite.name); 
         }
 
         private void RemoveCurrentHero()

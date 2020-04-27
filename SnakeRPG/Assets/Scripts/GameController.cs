@@ -12,7 +12,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
        _levelGrid = new LevelGrid(10,10);
-       caravanController.Setup(_levelGrid, heroSpawner);
+       caravanController.Setup(_levelGrid, heroSpawner, enemySpawner);
        heroSpawner.Setup(caravanController, _levelGrid);
        enemySpawner.Setup(caravanController, _levelGrid);
        _levelGrid.Setup(caravanController);
