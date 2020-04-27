@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace EngageSystem
 {
-    public class EngagePanelController : MonoBehaviour, ISubscriber
+    public class EngagePanelController : MonoBehaviour, ISubscriber,IBroadcaster
     {
 
         [SerializeField] private EntityStatDisplay heroStatDisplay; 
@@ -14,13 +14,30 @@ namespace EngageSystem
         private void Awake()
         {
             Signaler.Instance.Subscribe<EngageEnemySequence>(this, OnEngageEnemySequence);
+            layout.gameObject.SetActive(false);
         }
 
         private bool OnEngageEnemySequence(EngageEnemySequence signal)
         {
-            DisplayEnemyStat(signal.EnemyEntity.EntityData);
-            DisplayHeroStat(signal.HeroEntity.EntityData);
+
+            var sequence = LeanTween.sequence();
+            sequence.append(() =>
+            {
+                layout.gameObject.SetActive(true);
+                DisplayEnemyStat(signal.EnemyEntity.EntityData);
+                DisplayHeroStat(signal.HeroEntity.EntityData);
+            });
+            sequence.append(0.5f);
+            sequence.append(() => layout.gameObject.SetActive(false));
+            sequence.append(BroadcastResolveEngage);
+            
             return true;
+        }
+
+        private void BroadcastResolveEngage()
+        {
+            
+            Signaler.Instance.Broadcast(this, new EngageEnemySequenceFinish());
         }
 
         private void DisplayHeroStat(BoardEntityData signalHeroEntity)
