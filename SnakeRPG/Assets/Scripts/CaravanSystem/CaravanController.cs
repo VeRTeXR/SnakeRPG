@@ -4,6 +4,7 @@ using echo17.Signaler.Core;
 using EngageSystem;
 using LevelGridSystem;
 using LevelGridSystem.Data;
+using ScoreSystem.Signal;
 using SpawnerSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
@@ -199,6 +200,7 @@ namespace CaravanSystem
             {
                 //TODO:: fightback
                 CombatHandler.AttackTarget(enemyData, engagedHeroData);
+                Debug.LogError("playerH : "+engagedHeroData.HealthPoint);
                 if (engagedHeroData.HealthPoint <= 0)
                 {
                     if (_heroInCaravans.Count > 0)
@@ -206,12 +208,14 @@ namespace CaravanSystem
                     else
                     {
                         PauseCaravan();
+                        Debug.LogError("Gameover");
                         Signaler.Instance.Broadcast(this, new GameOver());
                     }
                 }
             }
             else
             {
+                Signaler.Instance.Broadcast(this, new EnemyKilled{HeroesInCaravan = _heroInCaravans});
                 _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
                 Destroy(enemyEntity.gameObject);
                 //TODO:: Destroy and remove enemy from grid
@@ -316,9 +320,5 @@ namespace CaravanSystem
                 if (_currentDirection != Direction.Left)
                     _currentDirection = Direction.Right;
         }
-    }
-
-    public struct GameOver
-    {
     }
 }
