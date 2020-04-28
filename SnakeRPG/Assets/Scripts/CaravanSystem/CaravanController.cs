@@ -48,7 +48,6 @@ namespace CaravanSystem
 
         private bool OnEngageEnemySequenceFinished(EngageEnemySequenceFinish signal)
         {
-            Debug.LogError("unpause");
             UnpauseCaravan();
             return true;
         }
@@ -200,19 +199,13 @@ namespace CaravanSystem
             var engagedHeroData = _leadingEntity.EntityData;
             var enemyData = enemyEntity.EntityData;
 
-            Debug.LogError("before : " + enemyData.HealthPoint);
             CombatHandler.AttackTarget(engagedHeroData, enemyData);
-
-
-            Debug.LogError("enemyRemainingHealth : " + enemyData.HealthPoint);
 
             if (enemyData.HealthPoint > 0)
             {
-                //TODO:: fightback
                 CombatHandler.AttackTarget(enemyData, engagedHeroData);
                 if (engagedHeroData.HealthPoint <= 0)
                 {
-                    Debug.LogError("removeCurrent on engage dead");
                     RemoveCurrentHero();
                     if (_heroInCaravans.Count <= 0)
                         TriggerGameOver();
@@ -224,9 +217,6 @@ namespace CaravanSystem
                 _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
                 _enemySpawner.RemoveEnemyEntityFromGridPos(_currentPositionOnGrid);
                 Destroy(enemyEntity.gameObject);
-
-
-                //TODO:: Destroy and remove enemy from grid
             }
         }
 
