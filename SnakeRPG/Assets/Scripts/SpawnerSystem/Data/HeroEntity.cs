@@ -6,11 +6,9 @@ namespace SpawnerSystem.Data
 {
     public class HeroEntity : MonoBehaviour
     {
-        public Sprite HeroSprite;
-        public int HealthPoint;
-        public int AttackPoint;
-        public int DefensePoint;
-        public ElementType Element;
+        public BoardEntityData EntityData;
+        
+   
         private SpriteRenderer _spriteRenderer;
 
         private MovePosition movePosition;
@@ -24,11 +22,15 @@ namespace SpawnerSystem.Data
         public void Setup(Sprite heroSprite)
         {
             _spriteRenderer.sprite = heroSprite;
-            HeroSprite = heroSprite;
-            HealthPoint = Random.Range(1, 5);
-            AttackPoint = Random.Range(1, 5);
-            DefensePoint = Random.Range(1, 5);
-            Element = (ElementType) Random.Range(0, 3);
+            EntityData = new BoardEntityData
+            {
+                Sprite = heroSprite,
+                HealthPoint = Random.Range(1, 5),
+                AttackPoint = Random.Range(1, 5),
+                DefensePoint = Random.Range(1, 5),
+                Element = (ElementType) Random.Range(0, 3),
+
+            };
         }
 
         public void SetCaravanMemberMovePosition(MovePosition movePosition)

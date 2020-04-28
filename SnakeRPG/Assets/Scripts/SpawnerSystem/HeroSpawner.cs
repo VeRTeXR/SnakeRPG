@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using CaravanSystem;
+using CaravanSystem.Signal;
+using echo17.Signaler.Core;
 using LevelGridSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
 
 namespace SpawnerSystem
 {
-    public class HeroSpawner: MonoBehaviour
+    public class HeroSpawner: MonoBehaviour, ISubscriber
     {
         [SerializeField] private List<Sprite> heroSprites;
         private CaravanController _caravanController;
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 1f;
+        private float _maxTimer = 5f;
         private LevelGrid _levelGrid;
         private int _levelWidth;
         private int _levelHeight;
@@ -21,6 +23,18 @@ namespace SpawnerSystem
 
         private List<Vector2Int> _heroOccupiedGridPosition = new List<Vector2Int>();
         private Dictionary<Vector2Int, HeroEntity> _gridPositionHeroEntityPair = new Dictionary<Vector2Int, HeroEntity>();
+
+        
+        private void Awake()
+        {
+            Signaler.Instance.Subscribe<GameOver>(this, OnGameOver);
+        }
+
+        private bool OnGameOver(GameOver signal)
+        {
+            _isTimerActive = false;
+            return true;
+        }
 
         public void Setup(CaravanController caravanController, LevelGrid levelGrid)
         {
@@ -36,11 +50,6 @@ namespace SpawnerSystem
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                _currentTimer = 0.2f;
-            }
-            
             if (!_isTimerActive) return;
             _currentTimer -= Time.deltaTime;
             if (_currentTimer <= 0)
@@ -68,25 +77,20 @@ namespace SpawnerSystem
             _levelGrid.AppendNewHeroPosition(_newHeroGridPosition);
             _heroOccupiedGridPosition.Add(_newHeroGridPosition);
             _gridPositionHeroEntityPair.Add(_newHeroGridPosition, heroEntity);
-
         }
-        
+
         public Sprite GetRandomHeroSprite()
         {
-            var heroIndex  = Random.Range(0, heroSprites.Count);
+            var heroIndex = Random.Range(0, heroSprites.Count);
             return heroSprites[heroIndex];
         }
-        
+
         public HeroEntity GetHeroEntityFromGridPos(Vector2Int gridPos)
         {
-            return _gridPositionHeroEntityPair[gridPos];
-        }
-
-        public void RemoveHeroEntityFromGridPos(Vector2Int gridPos)
-        {
+            var heroInGrid = _gridPositionHeroEntityPair[gridPos];
             _gridPositionHeroEntityPair.Remove(gridPos);
+            _heroOccupiedGridPosition.Remove(gridPos);
+            return heroInGrid;
         }
-
-
     }
 }

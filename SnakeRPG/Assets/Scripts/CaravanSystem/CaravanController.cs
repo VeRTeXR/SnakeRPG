@@ -1,35 +1,60 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using CaravanSystem.Signal;
+using echo17.Signaler.Core;
+using EngageSystem;
 using LevelGridSystem;
 using LevelGridSystem.Data;
+using ScoreSystem.Signal;
 using SpawnerSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
+using Utilities;
+using Debug = UnityEngine.Debug;
+using Direction = LevelGridSystem.Data.Direction;
 
 namespace CaravanSystem
 {
-    public class CaravanController : MonoBehaviour
+    public class CaravanController : MonoBehaviour, IBroadcaster, ISubscriber
     {
         private Direction _currentDirection;
         private float _moveTimerMax = 0.5f;
+        private float _increaseSpeedStep = 0.025f;
         private float _moveTimerCurrent;
         private List<MovePosition> _movePositionList;
         private Vector2Int _currentPositionOnGrid;
         private LevelGrid _levelGrid;
-        
+
         private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
         private EnemySpawner _enemySpawner;
 
         private HeroEntity _leadingEntity;
-        private int _selectedHeroIndex = 0;
-        
+        private int _selectedHeroIndex = 1;
+
+        private bool _isCaravanActive;
+
+        private int _currentScore;
+
         private void Awake()
         {
             _currentPositionOnGrid = new Vector2Int(5, 5);
             _moveTimerCurrent = _moveTimerMax;
             _currentDirection = Direction.Right;
             _movePositionList = new List<MovePosition>();
+
+            Signaler.Instance.Subscribe<EngageEnemySequenceFinish>(this, OnEngageEnemySequenceFinished);
+            _isCaravanActive = true;
+        }
+
+        private bool OnEngageEnemySequenceFinished(EngageEnemySequenceFinish signal)
+        {
+            UnpauseCaravan();
+            return true;
+        }
+
+        private void UnpauseCaravan()
+        {
+            _isCaravanActive = true;
         }
 
         public void Setup(LevelGrid level, HeroSpawner heroSpawner, EnemySpawner enemySpawner)
@@ -37,17 +62,23 @@ namespace CaravanSystem
             _levelGrid = level;
             _heroSpawner = heroSpawner;
             _enemySpawner = enemySpawner;
-            var currentEntity = gameObject.AddComponent<HeroEntity>();
+
+            var defaultHero = new GameObject("DefaultHero", typeof(SpriteRenderer));
+            var currentEntity = defaultHero.AddComponent<HeroEntity>();
             currentEntity.Setup(heroSpawner.GetRandomHeroSprite());
             _heroInCaravans.Add(currentEntity);
             _leadingEntity = currentEntity;
+            _leadingEntity.EntityData = currentEntity.EntityData;
         }
 
         private void Update()
         {
-            ProcessLeadHeroSwitching();
-            ProcessMovementInput();
-            ProcessMovement();
+            if (_isCaravanActive)
+            {
+                ProcessLeadHeroSwitching();
+                ProcessMovementInput();
+                ProcessMovement();
+            }
         }
 
         private void ProcessLeadHeroSwitching()
@@ -58,49 +89,33 @@ namespace CaravanSystem
 
         private void SwitchHeroRight()
         {
-            _selectedHeroIndex++;
-            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
-            UpdateCurrentHero();
+            if (_heroInCaravans.Count > 1)
+            {
+                _selectedHeroIndex++;
+
+                if (_selectedHeroIndex > _heroInCaravans.Count) _selectedHeroIndex = 1;
+
+
+                SwapAvatar(_selectedHeroIndex);
+            }
         }
 
 
         private void SwitchHeroLeft()
         {
-            _selectedHeroIndex--;
-            if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count - 1;
-            UpdateCurrentHero();
-        }
+            if (_heroInCaravans.Count > 1)
+            {
+                _selectedHeroIndex--;
+                if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count;
 
-        private void UpdateCurrentHero()
-        {
-            SwapAvatar(_selectedHeroIndex);
+                SwapAvatar(_selectedHeroIndex);
+            }
         }
 
         private void SwapAvatar(int nextAvatarIndex)
         {
-            var nextAvatar = _heroInCaravans[Mathf.Clamp(nextAvatarIndex, 0, _heroInCaravans.Count)].gameObject
-                .GetComponent<HeroEntity>();
-            if (nextAvatar != null)
-            {
-                var tempHealth = _leadingEntity.HealthPoint;
-                var tempAttack = _leadingEntity.AttackPoint;
-                var tempShield = _leadingEntity.DefensePoint;
-                var tempType = _leadingEntity.Element;
-                var tempSprite = _leadingEntity.GetComponent<SpriteRenderer>().sprite;
-
-                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
-                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
-                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
-                _leadingEntity.Element = nextAvatar.Element;
-                _leadingEntity.GetComponent<SpriteRenderer>().sprite =
-                    nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
-
-                nextAvatar.HealthPoint = tempHealth;
-                nextAvatar.AttackPoint = tempAttack;
-                nextAvatar.DefensePoint = tempShield;
-                nextAvatar.Element = tempType;
-                nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite = tempSprite;
-            }
+            _heroInCaravans.Swap(0, nextAvatarIndex - 1);
+            UpdateLeadingHero();
         }
 
         private void ProcessMovement()
@@ -130,7 +145,12 @@ namespace CaravanSystem
             if (directionChange != null)
             {
                 RemoveCurrentHero();
-                
+                if (_heroInCaravans.Count <= 0)
+                {
+                    TriggerGameOver();
+                    return;
+                }
+
                 _currentPositionOnGrid -= gridMoveDirectionVector;
                 _currentDirection = (Direction) directionChange;
                 var changeDirectionStep = ProcessMoveStep();
@@ -159,43 +179,91 @@ namespace CaravanSystem
 
             var isCollideWithEnemy = _levelGrid.CheckEnemyCollision(_currentPositionOnGrid);
             if (isCollideWithEnemy)
-                EngageWithEnemy();
+                EngageEnemy();
         }
 
-        private void EngageWithEnemy()
-        { 
-            var enemyEntity =_enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
-            
-            Destroy(enemyEntity.gameObject);
-           Debug.LogError(enemyEntity.EnemySprite.name); 
+        private void EngageEnemy()
+        {
+            var enemyEntity = _enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+            Signaler.Instance.Broadcast(this, new EngageEnemySequence
+            {
+                EnemyEntity = enemyEntity, HeroEntity = _leadingEntity
+            });
+
+            ProcessEngagement(enemyEntity);
+            PauseCaravan();
+        }
+
+        private void ProcessEngagement(EnemyEntity enemyEntity)
+        {
+            var engagedHeroData = _leadingEntity.EntityData;
+            var enemyData = enemyEntity.EntityData;
+
+            CombatHandler.AttackTarget(engagedHeroData, enemyData);
+
+            if (enemyData.HealthPoint > 0)
+            {
+                CombatHandler.AttackTarget(enemyData, engagedHeroData);
+                if (engagedHeroData.HealthPoint <= 0)
+                {
+                    RemoveCurrentHero();
+                    if (_heroInCaravans.Count <= 0)
+                        TriggerGameOver();
+                }
+            }
+            else
+            {
+                Signaler.Instance.Broadcast(this, new EnemyKilled {HeroesInCaravan = _heroInCaravans});
+                _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
+                _enemySpawner.RemoveEnemyEntityFromGridPos(_currentPositionOnGrid);
+                Destroy(enemyEntity.gameObject);
+            }
+        }
+
+        private void TriggerGameOver()
+        {
+            PauseCaravan();
+            Debug.LogError("Gameover");
+            Signaler.Instance.Broadcast(this, new GameOver());
+        }
+
+
+        private void PauseCaravan()
+        {
+            _isCaravanActive = false;
         }
 
         private void RemoveCurrentHero()
         {
-            _selectedHeroIndex++;
-            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
-            var nextAvatar = _heroInCaravans[Mathf.Clamp(_selectedHeroIndex, 0, _heroInCaravans.Count - 1)].gameObject
-                .GetComponent<HeroEntity>();
-            if (nextAvatar != null)
+            if (_heroInCaravans.Count <= 1)
             {
-                _leadingEntity.HealthPoint = nextAvatar.HealthPoint;
-                _leadingEntity.AttackPoint = nextAvatar.AttackPoint;
-                _leadingEntity.DefensePoint = nextAvatar.DefensePoint;
-                _leadingEntity.Element = nextAvatar.Element;
-                _leadingEntity.GetComponent<SpriteRenderer>().sprite = nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
-                _heroInCaravans.RemoveAt(_selectedHeroIndex);
-                Destroy(nextAvatar.gameObject);
-                _selectedHeroIndex = 0;
+                Destroy(_heroInCaravans[0].gameObject);
+                _heroInCaravans.RemoveAt(0);
+                return;
             }
+
+            _selectedHeroIndex++;
+            if (_selectedHeroIndex > _heroInCaravans.Count) _selectedHeroIndex = 1;
+            _heroInCaravans.Swap(0, _selectedHeroIndex - 1);
+
+            var nextAvatar = _heroInCaravans[_selectedHeroIndex - 1];
+
+            UpdateLeadingHero();
+            _heroInCaravans.RemoveAt(_selectedHeroIndex - 1);
+            Destroy(nextAvatar.gameObject);
+        }
+
+        private void UpdateLeadingHero()
+        {
+            _leadingEntity = _heroInCaravans[0];
+            _leadingEntity.EntityData = _heroInCaravans[0].EntityData;
+            _leadingEntity.GetComponent<SpriteRenderer>().sprite = _heroInCaravans[0].EntityData.Sprite;
         }
 
         private void AddHeroToCaravan()
         {
             var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
-            _heroSpawner.RemoveHeroEntityFromGridPos(_currentPositionOnGrid);
             _heroInCaravans.Add(collidedHero);
-
-            Debug.LogError(collidedHero.HeroSprite.name);
         }
 
         private void UpdateCaravanMemberPosition()

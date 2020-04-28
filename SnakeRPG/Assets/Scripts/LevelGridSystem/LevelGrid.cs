@@ -49,7 +49,6 @@ namespace LevelGridSystem
             foreach (var gridPos in _newEnemyGridPosition)
                 if (gridPosition == gridPos)
                 {
-                    _newEnemyGridPosition.Remove(gridPos);
                     return true;
                 }
 
@@ -74,7 +73,12 @@ namespace LevelGridSystem
         {
             _newEnemyGridPosition.Add(newGridPosition);
         }
-       
+ 
+        public void RemoveEnemyFromPosition(Vector2Int newGridPosition)
+        {
+            _newEnemyGridPosition.Remove(newGridPosition);   
+        }
+
         public List<Vector2Int> GetHeroOnGridPositionList()
         {
             return _newHeroGridPosition;
@@ -84,5 +88,6 @@ namespace LevelGridSystem
         {
             return _newEnemyGridPosition;
         }
+
     }
 }
