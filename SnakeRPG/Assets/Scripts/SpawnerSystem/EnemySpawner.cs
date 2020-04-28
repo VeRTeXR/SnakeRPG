@@ -19,7 +19,7 @@ namespace SpawnerSystem
 
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 100f;
+        private float _maxTimer = 3f;
         private Vector2Int _newGridPosition;
         private int _levelWidth;
         private int _levelHeight;
@@ -90,5 +90,12 @@ namespace SpawnerSystem
         {
             return _gridPositionEntityPair[currentPositionOnGrid];
         }
+        
+        public void RemoveEnemyEntityFromGridPos(Vector2Int currentPositionOnGrid)
+        {
+            _enemyOccupiedGridPosition.Remove(currentPositionOnGrid);
+            _gridPositionEntityPair.Remove(currentPositionOnGrid);
+        }
+
     }
 }

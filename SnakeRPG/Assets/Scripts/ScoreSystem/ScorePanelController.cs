@@ -1,18 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using CaravanSystem;
+﻿using System.Linq;
 using CaravanSystem.Signal;
 using echo17.Signaler.Core;
 using ScoreSystem.Signal;
-using SpawnerSystem.Data;
 using TMPro;
 using UnityEngine;
 
 namespace ScoreSystem
 {
     
-    public class ScoreController : MonoBehaviour, ISubscriber
+    public class ScorePanelController : MonoBehaviour, ISubscriber
     {
         private int _currentScore;
         [SerializeField] private TextMeshProUGUI scoreText;

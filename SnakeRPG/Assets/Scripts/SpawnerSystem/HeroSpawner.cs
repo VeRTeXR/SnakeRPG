@@ -94,6 +94,7 @@ namespace SpawnerSystem
         {
             var heroInGrid = _gridPositionHeroEntityPair[gridPos];
             _gridPositionHeroEntityPair.Remove(gridPos);
+            _heroOccupiedGridPosition.Remove(gridPos);
             return heroInGrid;
         }
     }

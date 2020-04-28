@@ -17,6 +17,7 @@ namespace CaravanSystem
     {
         private Direction _currentDirection;
         private float _moveTimerMax = 0.5f;
+        private float _increaseSpeedStep = 0.025f;
         private float _moveTimerCurrent;
         private List<MovePosition> _movePositionList;
         private Vector2Int _currentPositionOnGrid;
@@ -223,7 +224,10 @@ namespace CaravanSystem
             {
                 Signaler.Instance.Broadcast(this, new EnemyKilled{HeroesInCaravan = _heroInCaravans});
                 _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
+                _enemySpawner.RemoveEnemyEntityFromGridPos(_currentPositionOnGrid);
                 Destroy(enemyEntity.gameObject);
+                
+                
                 //TODO:: Destroy and remove enemy from grid
             }
         }
