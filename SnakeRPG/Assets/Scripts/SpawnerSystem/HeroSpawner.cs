@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using CaravanSystem;
+using CaravanSystem.Signal;
+using echo17.Signaler.Core;
 using LevelGridSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
 
 namespace SpawnerSystem
 {
-    public class HeroSpawner: MonoBehaviour
+    public class HeroSpawner: MonoBehaviour, ISubscriber
     {
         [SerializeField] private List<Sprite> heroSprites;
         private CaravanController _caravanController;
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 2f;
+        private float _maxTimer = 5f;
         private LevelGrid _levelGrid;
         private int _levelWidth;
         private int _levelHeight;
@@ -21,6 +23,18 @@ namespace SpawnerSystem
 
         private List<Vector2Int> _heroOccupiedGridPosition = new List<Vector2Int>();
         private Dictionary<Vector2Int, HeroEntity> _gridPositionHeroEntityPair = new Dictionary<Vector2Int, HeroEntity>();
+
+        
+        private void Awake()
+        {
+            Signaler.Instance.Subscribe<GameOver>(this, OnGameOver);
+        }
+
+        private bool OnGameOver(GameOver signal)
+        {
+            _isTimerActive = false;
+            return true;
+        }
 
         public void Setup(CaravanController caravanController, LevelGrid levelGrid)
         {

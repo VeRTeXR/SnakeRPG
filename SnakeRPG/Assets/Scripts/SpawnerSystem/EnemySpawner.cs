@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CaravanSystem;
+using CaravanSystem.Signal;
+using echo17.Signaler.Core;
 using LevelGridSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SpawnerSystem
 {
-    public class EnemySpawner : MonoBehaviour
+    public class EnemySpawner : MonoBehaviour, ISubscriber
     {
         [SerializeField] private List<Sprite> enemySprite;
 
@@ -15,12 +19,24 @@ namespace SpawnerSystem
 
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 10f;
+        private float _maxTimer = 100f;
         private Vector2Int _newGridPosition;
         private int _levelWidth;
         private int _levelHeight;
         private Dictionary<Vector2Int, EnemyEntity> _gridPositionEntityPair = new Dictionary<Vector2Int, EnemyEntity>();
         private List<Vector2Int> _enemyOccupiedGridPosition = new List<Vector2Int>();
+
+        private void Awake()
+        {
+            Signaler.Instance.Subscribe<GameOver>(this, OnGameOver);
+        }
+
+        private bool OnGameOver(GameOver signal)
+        {
+            _isTimerActive = false;
+            return true;
+        }
+
 
         public void Setup(CaravanController caravanController, LevelGrid levelGrid)
         {

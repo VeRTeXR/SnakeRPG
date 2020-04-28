@@ -142,6 +142,12 @@ namespace CaravanSystem
             {
                 RemoveCurrentHero();
 
+                if (_heroInCaravans.Count <= 0)
+                {
+                    Signaler.Instance.Broadcast(this, new GameOver());
+                    return;
+                }
+                
                 _currentPositionOnGrid -= gridMoveDirectionVector;
                 _currentDirection = (Direction) directionChange;
                 var changeDirectionStep = ProcessMoveStep();
