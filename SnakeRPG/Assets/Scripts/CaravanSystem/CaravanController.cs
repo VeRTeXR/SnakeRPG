@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using CaravanSystem.Signal;
 using echo17.Signaler.Core;
+using EngageSystem;
 using LevelGridSystem;
 using LevelGridSystem.Data;
 using SpawnerSystem;
 using SpawnerSystem.Data;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
+using Direction = LevelGridSystem.Data.Direction;
 
 namespace CaravanSystem
 {
@@ -21,7 +20,7 @@ namespace CaravanSystem
         private List<MovePosition> _movePositionList;
         private Vector2Int _currentPositionOnGrid;
         private LevelGrid _levelGrid;
-        
+
         private List<HeroEntity> _heroInCaravans = new List<HeroEntity>();
         private HeroSpawner _heroSpawner;
         private EnemySpawner _enemySpawner;
@@ -30,7 +29,9 @@ namespace CaravanSystem
         private int _selectedHeroIndex = 0;
 
         private bool _isCaravanActive;
-        
+
+        private int _currentScore;
+
         private void Awake()
         {
             _currentPositionOnGrid = new Vector2Int(5, 5);
@@ -83,7 +84,7 @@ namespace CaravanSystem
         private void SwitchHeroRight()
         {
             _selectedHeroIndex++;
-            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;    
+            if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
             SwapAvatar(_selectedHeroIndex);
         }
 
@@ -92,9 +93,9 @@ namespace CaravanSystem
         {
             _selectedHeroIndex--;
             if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count - 1;
-            SwapAvatar(_selectedHeroIndex);    
+            SwapAvatar(_selectedHeroIndex);
         }
-        
+
         private void SwapAvatar(int nextAvatarIndex)
         {
             var nextAvatar = _heroInCaravans[Mathf.Clamp(nextAvatarIndex, 0, _heroInCaravans.Count)].gameObject
@@ -139,7 +140,7 @@ namespace CaravanSystem
             if (directionChange != null)
             {
                 RemoveCurrentHero();
-                
+
                 _currentPositionOnGrid -= gridMoveDirectionVector;
                 _currentDirection = (Direction) directionChange;
                 var changeDirectionStep = ProcessMoveStep();
@@ -172,8 +173,8 @@ namespace CaravanSystem
         }
 
         private void EngageEnemy()
-        { 
-            var enemyEntity =_enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
+        {
+            var enemyEntity = _enemySpawner.GetEnemyEntityFromGridPos(_currentPositionOnGrid);
             Signaler.Instance.Broadcast(this, new EngageEnemySequence
             {
                 EnemyEntity = enemyEntity, HeroEntity = _leadingEntity
@@ -185,26 +186,38 @@ namespace CaravanSystem
 
         private void ProcessEngagement(EnemyEntity enemyEntity)
         {
-            var typeAttackMultiplier = 1;
             var engagedHeroData = _leadingEntity.EntityData;
-            if (engagedHeroData.Element == enemyEntity.EntityData.Element) typeAttackMultiplier = 2;
+            var enemyData = enemyEntity.EntityData;
 
-            var damage = (_leadingEntity.EntityData.AttackPoint * typeAttackMultiplier) - enemyEntity.EntityData.DefensePoint;
-            var remainingHealth = enemyEntity.EntityData.HealthPoint - damage;
+            Debug.LogError("before : " + enemyData.HealthPoint);
+            CombatHandler.AttackTarget(engagedHeroData, enemyData);
 
-            if (remainingHealth > 0)
+
+            Debug.LogError("enemyRemainingHealth : " + enemyData.HealthPoint);
+
+            if (enemyData.HealthPoint > 0)
             {
                 //TODO:: fightback
+                CombatHandler.AttackTarget(enemyData, engagedHeroData);
                 if (engagedHeroData.HealthPoint <= 0)
                 {
-                    //TODO:: Switch or Gameover
+                    if (_heroInCaravans.Count > 0)
+                        RemoveCurrentHero();
+                    else
+                    {
+                        PauseCaravan();
+                        Signaler.Instance.Broadcast(this, new GameOver());
+                    }
                 }
             }
             else
             {
+                _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
+                Destroy(enemyEntity.gameObject);
                 //TODO:: Destroy and remove enemy from grid
             }
         }
+
 
         private void PauseCaravan()
         {
@@ -217,21 +230,20 @@ namespace CaravanSystem
             if (_selectedHeroIndex > _heroInCaravans.Count - 1) _selectedHeroIndex = 0;
             var nextAvatar = _heroInCaravans[Mathf.Clamp(_selectedHeroIndex, 0, _heroInCaravans.Count - 1)].gameObject
                 .GetComponent<HeroEntity>();
-            if (nextAvatar != null)
-            {
-                _leadingEntity.EntityData = nextAvatar.EntityData;
-                _leadingEntity.GetComponent<SpriteRenderer>().sprite = nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
-                _heroInCaravans.RemoveAt(_selectedHeroIndex);
-                Destroy(nextAvatar.gameObject);
-                _selectedHeroIndex = 0;
-            }
+            if (nextAvatar == null) return;
+
+            _leadingEntity.EntityData = nextAvatar.EntityData;
+            _leadingEntity.GetComponent<SpriteRenderer>().sprite =
+                nextAvatar.gameObject.GetComponent<SpriteRenderer>().sprite;
+            _heroInCaravans.RemoveAt(_selectedHeroIndex);
+            Destroy(nextAvatar.gameObject);
+            _selectedHeroIndex = 0;
         }
 
         private void AddHeroToCaravan()
         {
             var collidedHero = _heroSpawner.GetHeroEntityFromGridPos(_currentPositionOnGrid);
             _heroInCaravans.Add(collidedHero);
-
         }
 
         private void UpdateCaravanMemberPosition()
@@ -304,5 +316,9 @@ namespace CaravanSystem
                 if (_currentDirection != Direction.Left)
                     _currentDirection = Direction.Right;
         }
+    }
+
+    public struct GameOver
+    {
     }
 }

@@ -12,7 +12,7 @@ namespace SpawnerSystem
         private CaravanController _caravanController;
         private bool _isTimerActive;
         private float _currentTimer;
-        private float _maxTimer = 1f;
+        private float _maxTimer = 2f;
         private LevelGrid _levelGrid;
         private int _levelWidth;
         private int _levelHeight;
