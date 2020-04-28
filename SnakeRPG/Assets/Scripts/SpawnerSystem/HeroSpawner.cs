@@ -50,11 +50,6 @@ namespace SpawnerSystem
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                _currentTimer = 0.2f;
-            }
-            
             if (!_isTimerActive) return;
             _currentTimer -= Time.deltaTime;
             if (_currentTimer <= 0)
