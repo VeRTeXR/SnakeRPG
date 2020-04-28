@@ -19,7 +19,6 @@ namespace EngageSystem
 
         private bool OnEngageEnemySequence(EngageEnemySequence signal)
         {
-
             var sequence = LeanTween.sequence();
             sequence.append(() =>
             {
@@ -27,7 +26,7 @@ namespace EngageSystem
                 DisplayEnemyStat(signal.EnemyEntity.EntityData);
                 DisplayHeroStat(signal.HeroEntity.EntityData);
             });
-            sequence.append(0.5f);
+            sequence.append(0.8f);
             sequence.append(() => layout.gameObject.SetActive(false));
             sequence.append(BroadcastResolveEngage);
             

@@ -48,7 +48,9 @@ namespace CaravanSystem
 
         private bool OnEngageEnemySequenceFinished(EngageEnemySequenceFinish signal)
         {
-            UnpauseCaravan();
+            if(_heroInCaravans.Count > 0)
+                UnpauseCaravan();
+            
             return true;
         }
 
@@ -148,6 +150,7 @@ namespace CaravanSystem
                 if (_heroInCaravans.Count <= 0)
                 {
                     TriggerGameOver();
+                    PauseCaravan();
                     return;
                 }
 
@@ -208,7 +211,10 @@ namespace CaravanSystem
                 {
                     RemoveCurrentHero();
                     if (_heroInCaravans.Count <= 0)
+                    {
                         TriggerGameOver();
+                        PauseCaravan();
+                    }
                 }
             }
             else
@@ -217,6 +223,8 @@ namespace CaravanSystem
                 _levelGrid.RemoveEnemyFromPosition(_currentPositionOnGrid);
                 _enemySpawner.RemoveEnemyEntityFromGridPos(_currentPositionOnGrid);
                 Destroy(enemyEntity.gameObject);
+                
+                _moveTimerMax -= _increaseSpeedStep;
             }
         }
 
@@ -245,10 +253,9 @@ namespace CaravanSystem
             _selectedHeroIndex++;
             if (_selectedHeroIndex > _heroInCaravans.Count) _selectedHeroIndex = 1;
             _heroInCaravans.Swap(0, _selectedHeroIndex - 1);
-
-            var nextAvatar = _heroInCaravans[_selectedHeroIndex - 1];
-
             UpdateLeadingHero();
+            
+            var nextAvatar = _heroInCaravans[_selectedHeroIndex - 1];
             _heroInCaravans.RemoveAt(_selectedHeroIndex - 1);
             Destroy(nextAvatar.gameObject);
         }

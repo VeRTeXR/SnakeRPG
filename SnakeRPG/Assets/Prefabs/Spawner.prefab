@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 118972438565901819}
   - component: {fileID: 118972438565901818}
+  - component: {fileID: 2258845888752608430}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -50,3 +51,29 @@ MonoBehaviour:
   - {fileID: 8222604357750818144, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
   - {fileID: -4004527290698857321, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
   - {fileID: -6033885931137250393, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -7156045342858959276, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 3719195470339505224, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 1731647788988222269, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+--- !u!114 &2258845888752608430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118972438565901821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 736da0dd4f404334a8e97b863bbdc563, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemySprite:
+  - {fileID: 5923240033370958429, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 2451002373052964623, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 8108322230764480391, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -1025951174003558675, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 3193039239326454919, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -3058229962641959686, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 51363136116004566, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: 2329116044165841025, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -7583837556227218809, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
+  - {fileID: -1333159919349879821, guid: 5e84da2efd7408c4dadc105ee89d0336, type: 3}
