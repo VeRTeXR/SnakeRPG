@@ -9,7 +9,6 @@ using SpawnerSystem;
 using SpawnerSystem.Data;
 using UnityEngine;
 using Utilities;
-using Debug = UnityEngine.Debug;
 using Direction = LevelGridSystem.Data.Direction;
 
 namespace CaravanSystem
@@ -33,6 +32,7 @@ namespace CaravanSystem
         private bool _isCaravanActive;
 
         private int _currentScore;
+        private float _minimumTimerMax = 0.05f;
 
         private void Awake()
         {
@@ -84,20 +84,12 @@ namespace CaravanSystem
 
         private void ProcessLeadHeroSwitching()
         {
-            if (Input.GetKeyDown(KeyCode.Q)) SwitchHeroLeft();
-            if (Input.GetKeyDown(KeyCode.E)) SwitchHeroRight();
+            if (Input.GetKeyDown(KeyCode.Q)||Input.GetKeyDown(KeyCode.RightShift)) SwitchLeadingHero();
         }
 
-        private void SwitchHeroRight()
+        private void SwitchLeadingHero()
         {
-            if (_heroInCaravans.Count > 1) 
-                SwapAvatar(2);
-        }
-
-
-        private void SwitchHeroLeft()
-        {
-            if (_heroInCaravans.Count > 1) 
+            if (_heroInCaravans.Count > 1)
                 SwapAvatar(_heroInCaravans.Count);
         }
 
@@ -212,6 +204,7 @@ namespace CaravanSystem
                 Destroy(enemyEntity.gameObject);
                 
                 _moveTimerMax -= _increaseSpeedStep;
+                _moveTimerMax = Mathf.Clamp(_moveTimerMax, _minimumTimerMax, float.MaxValue);
             }
         }
 
