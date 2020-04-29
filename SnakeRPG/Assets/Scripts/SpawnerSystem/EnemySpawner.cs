@@ -45,6 +45,7 @@ namespace SpawnerSystem
             _levelGrid = levelGrid;
             _levelWidth = levelDimension.x;
             _levelHeight = levelDimension.y;
+            _currentTimer = _maxTimer;
 
             _isTimerActive = true;
         }

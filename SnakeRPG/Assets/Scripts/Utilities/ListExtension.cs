@@ -5,16 +5,11 @@ namespace Utilities
 {
     public static class ListExtension 
     {
-        public static List<HeroEntity> Swap(this List<HeroEntity> list, 
-            int firstIndex, 
-            int secondIndex) 
-
+        public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
         {
-            HeroEntity temp = list[firstIndex];
-            list[firstIndex] = list[secondIndex];
-            list[secondIndex] = temp;
-
-            return list;
+            var item = list[oldIndex];
+            list.RemoveAt(oldIndex);
+            list.Insert(newIndex, item);
         }
     }   
 }

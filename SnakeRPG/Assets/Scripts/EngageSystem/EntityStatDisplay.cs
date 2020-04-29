@@ -13,14 +13,28 @@ namespace EngageSystem
         [SerializeField] private TextMeshProUGUI attackPointText; 
         [SerializeField] private TextMeshProUGUI defensePointText; 
         [SerializeField] private TextMeshProUGUI typeText; 
+        [SerializeField] private TextMeshProUGUI statusText;
+        private CanvasGroup _statusTextCanvasGroup;
+
 
         public void Setup(BoardEntityData boardEntityData)
         {
+            
+            _statusTextCanvasGroup = statusText.GetComponent<CanvasGroup>();
+            _statusTextCanvasGroup.alpha = 0;
+            
+            var health = Mathf.Clamp(boardEntityData.HealthPoint, 0,Int32.MaxValue);
+            healthText.text = "HP: "+health;
+            
             sprite.sprite = boardEntityData.Sprite;
-            healthText.text = boardEntityData.HealthPoint.ToString();
-            attackPointText.text = boardEntityData.AttackPoint.ToString();
-            defensePointText.text = boardEntityData.DefensePoint.ToString();
-            typeText.text = boardEntityData.Element.ToString();
+            attackPointText.text ="AP: "+boardEntityData.AttackPoint;
+            defensePointText.text ="DP: "+boardEntityData.DefensePoint;
+            typeText.text = "TYPE: "+boardEntityData.Element;
+
+            if (health > 0) return;
+            LeanTween.alphaCanvas(_statusTextCanvasGroup, 1, 0.4f);
+            statusText.text = "DEAD";
+            statusText.color = Color.red;
         }
     }
 }
