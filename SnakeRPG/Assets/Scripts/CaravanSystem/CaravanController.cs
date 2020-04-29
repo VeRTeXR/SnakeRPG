@@ -29,7 +29,6 @@ namespace CaravanSystem
         private EnemySpawner _enemySpawner;
 
         private HeroEntity _leadingEntity;
-        private int _selectedHeroIndex = 1;
 
         private bool _isCaravanActive;
 
@@ -91,32 +90,20 @@ namespace CaravanSystem
 
         private void SwitchHeroRight()
         {
-            if (_heroInCaravans.Count > 1)
-            {
-                _selectedHeroIndex++;
-
-                if (_selectedHeroIndex > _heroInCaravans.Count) _selectedHeroIndex = 1;
-
-
-                SwapAvatar(_selectedHeroIndex);
-            }
+            if (_heroInCaravans.Count > 1) 
+                SwapAvatar(2);
         }
 
 
         private void SwitchHeroLeft()
         {
-            if (_heroInCaravans.Count > 1)
-            {
-                _selectedHeroIndex--;
-                if (_selectedHeroIndex <= 0) _selectedHeroIndex = _heroInCaravans.Count;
-
-                SwapAvatar(_selectedHeroIndex);
-            }
+            if (_heroInCaravans.Count > 1) 
+                SwapAvatar(_heroInCaravans.Count);
         }
 
         private void SwapAvatar(int nextAvatarIndex)
         {
-            _heroInCaravans.Swap(0, nextAvatarIndex - 1);
+            _heroInCaravans.Move(0,nextAvatarIndex-1);
             UpdateLeadingHero();
         }
 
@@ -231,7 +218,6 @@ namespace CaravanSystem
         private void TriggerGameOver()
         {
             PauseCaravan();
-            Debug.LogError("Gameover");
             Signaler.Instance.Broadcast(this, new GameOver());
         }
 
@@ -250,13 +236,11 @@ namespace CaravanSystem
                 return;
             }
 
-            _selectedHeroIndex++;
-            if (_selectedHeroIndex > _heroInCaravans.Count) _selectedHeroIndex = 1;
-            _heroInCaravans.Swap(0, _selectedHeroIndex - 1);
+            _heroInCaravans.Move(0, 1);
             UpdateLeadingHero();
             
-            var nextAvatar = _heroInCaravans[_selectedHeroIndex - 1];
-            _heroInCaravans.RemoveAt(_selectedHeroIndex - 1);
+            var nextAvatar = _heroInCaravans[1];
+            _heroInCaravans.RemoveAt(1);
             Destroy(nextAvatar.gameObject);
         }
 
@@ -264,6 +248,7 @@ namespace CaravanSystem
         {
             _leadingEntity = _heroInCaravans[0];
             _leadingEntity.EntityData = _heroInCaravans[0].EntityData;
+            
             _leadingEntity.GetComponent<SpriteRenderer>().sprite = _heroInCaravans[0].EntityData.Sprite;
         }
 
@@ -327,21 +312,26 @@ namespace CaravanSystem
 
         private void ProcessMovementInput()
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-                if (_currentDirection != Direction.Down)
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+                if(_currentDirection == Direction.Up)    
+                    _currentDirection = Direction.Left;
+                else if (_currentDirection == Direction.Down)
+                    _currentDirection = Direction.Right;
+                else if (_currentDirection == Direction.Left)
+                    _currentDirection = Direction.Down;
+                else if (_currentDirection == Direction.Right)
                     _currentDirection = Direction.Up;
 
-            if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
-                if (_currentDirection != Direction.Up)
-                    _currentDirection = Direction.Down;
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
-                if (_currentDirection != Direction.Right)
-                    _currentDirection = Direction.Left;
-
             if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
-                if (_currentDirection != Direction.Left)
+                if (_currentDirection == Direction.Down)
+                    _currentDirection = Direction.Left;
+                else if (_currentDirection == Direction.Up)
                     _currentDirection = Direction.Right;
+                else if (_currentDirection == Direction.Right)
+                    _currentDirection = Direction.Down;
+                else if (_currentDirection == Direction.Left)
+                    _currentDirection = Direction.Up;
+
         }
     }
 }

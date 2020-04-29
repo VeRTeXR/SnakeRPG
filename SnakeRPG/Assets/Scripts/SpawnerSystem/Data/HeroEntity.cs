@@ -1,4 +1,5 @@
 ﻿using LevelGridSystem.Data;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -7,16 +8,12 @@ namespace SpawnerSystem.Data
     public class HeroEntity : MonoBehaviour
     {
         public BoardEntityData EntityData;
-        
-   
         private SpriteRenderer _spriteRenderer;
-
-        private MovePosition movePosition;
-
 
         private void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
+
         }
 
         public void Setup(Sprite heroSprite)
@@ -29,13 +26,11 @@ namespace SpawnerSystem.Data
                 AttackPoint = Random.Range(1, 5),
                 DefensePoint = Random.Range(1, 5),
                 Element = (ElementType) Random.Range(0, 3),
-
             };
         }
 
         public void SetCaravanMemberMovePosition(MovePosition movePosition)
         {
-            this.movePosition = movePosition;
             transform.position = new Vector3(movePosition.GetGridPosition().x, movePosition.GetGridPosition().y);
             float angle;
             switch (movePosition.GetDirection())

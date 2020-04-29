@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using CaravanSystem.Signal;
 using echo17.Signaler.Core;
+using GameOverPanel;
 using ScoreSystem.Signal;
 using TMPro;
 using UnityEngine;
@@ -17,15 +18,16 @@ namespace ScoreSystem
         private void Awake()
         {
             Signaler.Instance.Subscribe<EnemyKilled>(this, OnEnemyKilled);
-            Signaler.Instance.Subscribe<GameOver>(this, OnGameOver);
-
+            Signaler.Instance.Subscribe<RequestScore>(this, OnRequestScore);
             _scoreTextCanvasGroup = scoreText.GetComponent<CanvasGroup>();
         }
 
-        private bool OnGameOver(GameOver signal)
+        private bool OnRequestScore(RequestScore signal)
         {
+            signal.requester.SetScore(_currentScore);
             return true;
         }
+
 
         private bool OnEnemyKilled(EnemyKilled signal)
         {
@@ -38,9 +40,9 @@ namespace ScoreSystem
         private void AnimateEnter()
         {
             scoreText.text = _currentScore.ToString();
-            LeanTween.scale(scoreText.rectTransform, new Vector3(1.3f,1.3f,1.3f), 0.4f).setOnComplete(() =>
+            LeanTween.scale(scoreText.rectTransform, new Vector3(1.3f,1.3f,1.3f), 0.2f).setEasePunch().setOnComplete(() =>
                 {
-                    LeanTween.scale(scoreText.rectTransform, Vector3.one, 0.4f);
+                    LeanTween.scale(scoreText.rectTransform, Vector3.one, 0.2f);
                 });
         }
     }

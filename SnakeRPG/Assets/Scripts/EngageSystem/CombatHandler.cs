@@ -14,7 +14,6 @@ namespace EngageSystem
             var playerDamage = modDamage - target.DefensePoint;
             
             playerDamage = Mathf.Clamp(playerDamage, 1, int.MaxValue);
-            Debug.LogError("player dam : "+playerDamage);
             var enemyRemainingHealth = target.HealthPoint - playerDamage; 
             target.HealthPoint = enemyRemainingHealth;
         }
