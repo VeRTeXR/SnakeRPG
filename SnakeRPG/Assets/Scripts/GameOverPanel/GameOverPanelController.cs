@@ -22,11 +22,11 @@ namespace GameOverPanel
 
         private bool OnGameOver(GameOver signal)
         {
+            Signaler.Instance.Broadcast(this, new RequestScore {requester = this});
             scoreText.gameObject.SetActive(true);
             _scoreTextCanvasGroup.alpha = 0;
             scoreText.text = "GAME OVER<br>Your total score is : "+_score;
 
-            Signaler.Instance.Broadcast(this, new RequestScore {requester = this});
    
             var seq = LeanTween.sequence();
             seq.append(LeanTween.alphaCanvas(_scoreTextCanvasGroup, 1, 0.4f));
